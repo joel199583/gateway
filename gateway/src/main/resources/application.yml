@@ -1,0 +1,55 @@
+server:
+  port: 8081
+  address: 0.0.0.0
+
+spring:
+  application:
+    name: gateway-dynamic
+  security:
+    user:
+      name: user
+      password: user
+  thymeleaf:
+    cache: false      
+  cloud:
+    gateway:
+#      httpclient:
+#        response:
+#          headers:
+#            set-cookie:
+#              remove-domain: true
+#              remove-httponly: true
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowedMethods:
+              - PUT
+              - POST
+#            allowCredentials: true
+
+      routes:
+        - id: flightradar24
+          predicates:
+            - Path=/flightradar24
+          uri: https://www.flightradar24.com/
+       
+        - id: marinetraffic_login
+          predicates:
+            - Path=/users/ajax_login
+          uri: https://www.marinetraffic.com
+
+        - id: marinetraffic
+          uri: https://www.marinetraffic.com
+          predicates:
+            - Path=/en/new_fleets/update/{fleetId}
+          filters:
+            - CustomCookieHeaderFilter
+#            - AddRequestHeader=x-requested-with, XMLHttpRequest
+#            - AddRequestHeader=cookie, CAKEPHP=0bvctc3b7g75tceqn5ktsdrc11; mt_user[UserID]=4812837; AUTH=EMAIL=iot_helpdesk@customs.gov.tw&CHALLENGE=Mv8UNXxUEfL32ehDf4Tv
+     
